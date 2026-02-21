@@ -8,10 +8,19 @@ FEATURE_COLUMNS = ['lead_avg_rank', 'lead_avg_points', 'lead_count',
 GENDER_DF = pd.read_csv('ifsc_climbing_data/genders.csv')
 
 def rename_columns(df):
-    rename_dict = {name : name.lower().replace(' ', '_').strip().replace(':', '') for name in df.columns}
-    return df.rename(columns=rename_dict)
+     df_copy = df.copy()
+     
+     df_copy.columns = df_copy.columns.str.strip().str.lower().str.replace(' ', '_')
+     rename_dict = list(df_copy.columns)
+     rename_dict[1] = "orignal_title"
+     rename_dict[3] = "genre"
+     rename_dict[8] = "unnamed_8"
+     df_copy.columns = rename_dict
+    
+     return df_copy
 
 def remove_youth(df):
+
     return df[~df.competition_title.str.lower().str.contains('youth')]
 
 def get_end_day(string):
@@ -126,6 +135,14 @@ def clean_release_year(df):
     return df
 
 def clean_income(df):
-    df['income'] = df['income'].str.replace('[\$,]', '', regex=True).astype(int)
+    df = df.copy()
+    df["income"] = (
+        df["income"]
+        .astype(str)
+        .str.replace(r"[^\d,]", "", regex=True)  
+        .str.strip()                           
+        .astype(int)
+    )
     return df
+    
 
